@@ -18,13 +18,13 @@ fn process_image(dir: &str, scale: u32, inverted: bool) {
     println!("width: {}, height: {}.", width, height);
     for y in 0..height {
         for x in 0..width {
-            if y % scale == 0 && x % scale == 0 {
+            if y % (scale * 2) == 0 && x % scale == 0 {
                 let pixel = img.get_pixel(x, y);
                 let mut intensity = pixel[0]/3 + pixel[1]/3 + pixel[2]/3;
                 print!("{}", get_ascii(intensity, inverted));
-            } 
+            }
         }
-        if y % scale == 0 {
+        if y % (scale * 2) == 0 {
             println!("");
         }
     }
