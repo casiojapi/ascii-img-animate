@@ -1,4 +1,7 @@
 use image::{GenericImageView};
+use rand::Rng;
+ use rand::prelude::SliceRandom;
+use std::{thread, time::Duration};
 
 fn get_ascii(intensity: u8, inverted: bool) -> char { 
     let ascii_values = [' ', '.', ',', '-', '+', '=', '{', '$'];
@@ -10,6 +13,20 @@ fn get_ascii(intensity: u8, inverted: bool) -> char {
         return ascii_values[(7 - index) as usize];
     }
     return ascii_values[index as usize];
+}
+
+fn get_next_state(ch: char) -> char {
+    let chars = match ch {
+        '{' | '}' | '(' | ')' => vec!['{', '}', '(', ')'],
+        '$' => vec!['$', '€', '£', '¥'],
+        '=' => vec!['=', '≠', '≈', '≡'],
+        '+' => vec!['+', '-', '*', '/'],
+        '.' => vec!['.', ':', ';', ','],
+        '-' => vec!['-', '_', '|', '/'], 
+        _ => vec![ch],
+    };
+    let mut rng = rand::thread_rng();
+    return *chars.choose(&mut rng).unwrap();
 }
 
 fn process_image(dir: &str, scale: u32, inverted: bool) -> Vec<Vec<char>> {
@@ -31,14 +48,18 @@ fn process_image(dir: &str, scale: u32, inverted: bool) -> Vec<Vec<char>> {
 }
 
 fn animate_image(ascii_image: Vec<Vec<char>>, frames: usize, delay: u64) {
-    // clean screen
-    print!("{esc}[2J{esc}[1;1H", esc = 27 as char);
+    for _ in 0..frames {
+        // clean screen
+        print!("{esc}[2J{esc}[1;1H", esc = 27 as char);
 
-    for row in &ascii_image {
-        for &ch in row {
-            print!("{}", ch);
+        for row in &ascii_image {
+            for &ch in row {
+                print!("{}", get_next_state(ch));
+            }
+            println!();
         }
-        println!();
+
+        thread::sleep(Duration::from_millis(delay));
     }
 }
 
@@ -51,6 +72,6 @@ fn display_image(ascii_image: Vec<Vec<char>>) {
     }
 }
 fn main() {
-    display_image(process_image("pepe.png", 8, true))
-    //process_image("pepe.png", 8, true);
+    let ascii_image = process_image("pepe.png", 8, true);
+    animate_image(ascii_image, 1000000, 100);
 }
