@@ -2,6 +2,9 @@
 
 this rust project will let convert an image to ASCII and animate it (in ascii)
 
+![gif](https://github.com/casiojapi/ascii-img-animate/blob/master/pepe.gif)
+
+
 ## install
 
 ### clone the repository:
