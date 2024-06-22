@@ -1,6 +1,5 @@
 use image::{GenericImageView};
-use rand::Rng;
- use rand::prelude::SliceRandom;
+use rand::prelude::SliceRandom;
 use std::{thread, time::Duration};
 
 fn get_ascii(intensity: u8, inverted: bool) -> char { 
@@ -48,13 +47,10 @@ fn process_image(dir: &str, scale: u32, inverted: bool) -> Vec<Vec<char>> {
 }
 
 fn animate_image(ascii_image: Vec<Vec<char>>, frames: usize, fps: u64) {
-
     // remember: delay = 1000/FPS
-    let delay = 1000/fps;
+    let delay = 1000 / fps;
+    
     for _ in 0..frames {
-        // clean screen
-        //print!("{esc}[2J{esc}[1;1H", esc = 27 as char);
-        //print!("{esc}[2J{esc}[H", esc = 27 as char);
        let mut frame = String::new();
 
         for row in &ascii_image {
@@ -69,14 +65,6 @@ fn animate_image(ascii_image: Vec<Vec<char>>, frames: usize, fps: u64) {
     }
 }
 
-fn display_image(ascii_image: Vec<Vec<char>>) {
-    for row in &ascii_image {
-        for &ch in row {
-            print!("{}", ch); 
-        }
-        println!();
-    }
-}
 fn main() {
     let ascii_image = process_image("pepe.png", 8, true);
     animate_image(ascii_image, 10000, 15);
