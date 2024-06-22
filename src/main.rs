@@ -47,18 +47,23 @@ fn process_image(dir: &str, scale: u32, inverted: bool) -> Vec<Vec<char>> {
     return ascii_image;
 }
 
-fn animate_image(ascii_image: Vec<Vec<char>>, frames: usize, delay: u64) {
+fn animate_image(ascii_image: Vec<Vec<char>>, frames: usize, fps: u64) {
+
+    // remember: delay = 1000/FPS
+    let delay = 1000/fps;
     for _ in 0..frames {
         // clean screen
         //print!("{esc}[2J{esc}[1;1H", esc = 27 as char);
         //print!("{esc}[2J{esc}[H", esc = 27 as char);
-        print!("\x1B[2J\x1B[1;1H");
+       let mut frame = String::new();
+
         for row in &ascii_image {
             for &ch in row {
-                print!("{}", get_next_state(ch));
+                frame.push(get_next_state(ch));
             }
-            println!();
+            frame.push('\n');
         }
+        print!("\x1B[2J\x1B[1;1H{}", frame);
 
         thread::sleep(Duration::from_millis(delay));
     }
@@ -74,5 +79,5 @@ fn display_image(ascii_image: Vec<Vec<char>>) {
 }
 fn main() {
     let ascii_image = process_image("pepe.png", 8, true);
-    animate_image(ascii_image, 10000, 60);
+    animate_image(ascii_image, 10000, 15);
 }
