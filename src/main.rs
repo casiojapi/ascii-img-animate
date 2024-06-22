@@ -17,12 +17,12 @@ fn get_ascii(intensity: u8, inverted: bool) -> char {
 
 fn get_next_state(ch: char) -> char {
     let chars = match ch {
-        '{' | '}' | '(' | ')' => vec!['{', '}', '(', ')'],
+        '{' | '}' => vec!['{', '}', '(', ')'],
         '$' => vec!['$', '€', '£', '¥'],
         '=' => vec!['=', '≠', '≈', '≡'],
-        '+' => vec!['+', '-', '*', '/'],
+        '+' => vec!['+', '-', '*', 'o'],
         '.' => vec!['.', ':', ';', ','],
-        '-' => vec!['-', '_', '|', '/'], 
+        '-' => vec!['-', '_', '~'], 
         _ => vec![ch],
     };
     let mut rng = rand::thread_rng();
@@ -50,8 +50,9 @@ fn process_image(dir: &str, scale: u32, inverted: bool) -> Vec<Vec<char>> {
 fn animate_image(ascii_image: Vec<Vec<char>>, frames: usize, delay: u64) {
     for _ in 0..frames {
         // clean screen
-        print!("{esc}[2J{esc}[1;1H", esc = 27 as char);
-
+        //print!("{esc}[2J{esc}[1;1H", esc = 27 as char);
+        //print!("{esc}[2J{esc}[H", esc = 27 as char);
+        print!("\x1B[2J\x1B[1;1H");
         for row in &ascii_image {
             for &ch in row {
                 print!("{}", get_next_state(ch));
@@ -73,5 +74,5 @@ fn display_image(ascii_image: Vec<Vec<char>>) {
 }
 fn main() {
     let ascii_image = process_image("pepe.png", 8, true);
-    animate_image(ascii_image, 1000000, 100);
+    animate_image(ascii_image, 10000, 60);
 }
