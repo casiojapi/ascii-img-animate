@@ -1,11 +1,25 @@
 use image::{GenericImageView};
 use rand::prelude::SliceRandom;
-use std::{thread, time::Duration};
+use std::{thread, time::Duration, io::{self, Write}};
+use structopt::StructOpt;
+
+#[derive(StructOpt, Debug)]
+#[structopt(name = "ascii_animator")]
+struct Opt {
+    #[structopt(short, long, default_value = "pepe.png")]
+    image: String,
+
+    #[structopt(short, long, default_value = "20")]
+    fps: u64,
+
+    #[structopt(short, long)]
+    evil: bool, //default is false. if --evil is used ascii will be inversed
+}
 
 fn get_ascii(intensity: u8, inverted: bool) -> char { 
     let ascii_values = [' ', '.', ',', '-', '+', '=', '{', '$'];
     
-    // intensity 0 - 255, but want indexes from 0 - 8. thus /32
+    // intensity 0 - 255, but want indexes from 0 - 8, thus /32
     let index = intensity / 32;
 
     if inverted {
@@ -46,26 +60,27 @@ fn process_image(dir: &str, scale: u32, inverted: bool) -> Vec<Vec<char>> {
     return ascii_image;
 }
 
-fn animate_image(ascii_image: Vec<Vec<char>>, frames: usize, fps: u64) {
-    // remember: delay = 1000/FPS
-    let delay = 1000 / fps;
-    
+fn animate_image(ascii_image: &mut Vec<Vec<char>>, frames: usize, fps: u64) {
+    let delay = 1000 / fps; 
     for _ in 0..frames {
-       let mut frame = String::new();
+        let mut frame = String::new();
 
-        for row in &ascii_image {
-            for &ch in row {
+        for row in &mut *ascii_image {
+            for &mut ch in row {
                 frame.push(get_next_state(ch));
             }
             frame.push('\n');
         }
-        print!("\x1B[2J\x1B[1;1H{}", frame);
 
-        thread::sleep(Duration::from_millis(delay));
+        print!("{esc}[2J{esc}[H{}", frame, esc = 27 as char);
+        io::stdout().flush().unwrap();
+
+        thread::sleep(Duration::from_millis(delay as u64));
     }
 }
 
 fn main() {
-    let ascii_image = process_image("pepe.png", 8, true);
-    animate_image(ascii_image, 10000, 15);
+    let opt = Opt::from_args();
+    let mut ascii_image = process_image(&opt.image, 8, opt.evil);
+    animate_image(&mut ascii_image, 100000, opt.fps); 
 }
